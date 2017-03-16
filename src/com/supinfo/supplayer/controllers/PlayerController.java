@@ -64,11 +64,14 @@ public class PlayerController implements Initializable {
 
         try
         {
-            String winPath = selectedFile.toURI().getRawPath();
-            String path = convertToFileURL(winPath);
-            MediaPlayer m = new MediaPlayer(new Media(path));
-            musics.add(m);
-            m.play();
+            if (selectedFile != null)
+            {
+                String winPath = selectedFile.getAbsolutePath();
+                String path = convertToFileURL(winPath);
+                MediaPlayer m = new MediaPlayer(new Media(path));
+                musics.add(m);
+                m.play();
+            }
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -77,18 +80,17 @@ public class PlayerController implements Initializable {
     private String convertToFileURL ( String path )
     {
         //Convert Windows URL to Java URL
-        String newPath = new File(path).getAbsolutePath ();
         if ( File.separatorChar != '/' )
         {
-            newPath = newPath.replace ( File.separatorChar, '/' );
+            path = path.replace ( File.separatorChar, '/' );
         }
-        if ( !newPath.startsWith ( "/" ) )
+        if ( !path.startsWith ( "/" ) )
         {
-            newPath = "/" + newPath;
+            path = "/" + path;
         }
-        newPath =  "file:" + newPath; //Format URI
+        path =  "file:" + path; //Format URI
 
-        return newPath;
+        return path;
     }
     
 
