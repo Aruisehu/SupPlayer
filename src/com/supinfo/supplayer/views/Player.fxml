@@ -21,9 +21,9 @@
          <center>
             <TableView fx:id="musicTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn prefWidth="425.0" text="Titre" />
-                <TableColumn prefWidth="75.0" text="Format" />
-                  <TableColumn prefWidth="100.0" text="Durée" />
+                <TableColumn fx:id="titleColumn" prefWidth="425.0" text="Titre" />
+                <TableColumn fx:id="formatColumn" prefWidth="75.0" text="Format" />
+                  <TableColumn fx:id="durationColumn" prefWidth="100.0" text="Durée" />
               </columns>
             </TableView>
          </center>

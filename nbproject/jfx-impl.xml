@@ -2187,7 +2187,7 @@
                     var embedJNLP = new String(project.getProperty("javafx.deploy.embedJNLP"));
                     var updatemode = new String(project.getProperty("update-mode"));
                     var outfile = new String(project.getProperty("application.title"));
-                    var includeDT = new String(project.getProperty("javafx.deploy.includeDT"));
+                    var includeDT = new String(project.getProperty("jfx.deploy.includeDT"));
                     var offline = new String(project.getProperty("javafx.deploy.allowoffline"));
                     if (width.indexOf("%") != -1) {
                         deploy.setEmbeddedWidth(width);

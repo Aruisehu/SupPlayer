@@ -19,24 +19,24 @@
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="musicTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn prefWidth="425.0" text="Titre" />
-                <TableColumn prefWidth="75.0" text="Format" />
-                  <TableColumn prefWidth="100.0" text="Durée" />
+                <TableColumn fx:id="titleColumn" prefWidth="425.0" text="Titre" />
+                <TableColumn fx:id="formatColumn" prefWidth="75.0" text="Format" />
+                  <TableColumn fx:id="durationColumn" prefWidth="100.0" text="Durée" />
               </columns>
             </TableView>
          </center>
          <bottom>
             <AnchorPane prefHeight="45.0" prefWidth="200.0" BorderPane.alignment="BOTTOM_LEFT">
                <children>
-                  <Button mnemonicParsing="false" text="Play" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" />
-                  <Slider layoutX="97.0" layoutY="169.0" prefHeight="16.0" prefWidth="355.0" AnchorPane.bottomAnchor="15.0" />
+                  <Button fx:id="playButton" mnemonicParsing="false" text="Play" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" />
+                  <Slider fx:id="durationSlider" layoutX="97.0" layoutY="169.0" prefHeight="16.0" prefWidth="355.0" AnchorPane.bottomAnchor="15.0" />
                   <MenuButton layoutX="476.0" layoutY="164.0" mnemonicParsing="false" text="Volume" AnchorPane.bottomAnchor="10.0">
                     <items>
                       <MenuItem mnemonicParsing="false">
                            <graphic>
-                              <Slider orientation="VERTICAL" />
+                              <Slider fx:id="volumeSlider" orientation="VERTICAL" />
                            </graphic>
                         </MenuItem>
                     </items>

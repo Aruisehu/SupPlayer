@@ -5,7 +5,8 @@
         <group>
             <file>file:/run/media/aruisehu/1E963A5B963A339D/Users/Yohan/Documents/NetBeansProjects/SupPlayer/src/com/supinfo/supplayer/controllers/PlayerController.java</file>
             <file>file:/run/media/aruisehu/1E963A5B963A339D/Users/Yohan/Documents/NetBeansProjects/SupPlayer/nbproject/jfx-impl.xml</file>
-            <file>file:/run/media/aruisehu/1E963A5B963A339D/Users/Yohan/Documents/NetBeansProjects/SupPlayer/src/com/supinfo/supplayer/SupPlayer.java</file>
+            <file>file:/run/media/aruisehu/1E963A5B963A339D/Users/Yohan/Documents/NetBeansProjects/SupPlayer/src/com/supinfo/supplayer/models/Music.java</file>
+            <file>file:/run/media/aruisehu/1E963A5B963A339D/Users/Yohan/Documents/NetBeansProjects/SupPlayer/src/com/supinfo/supplayer/StringUtil.java</file>
         </group>
     </open-files>
 </project-private>
