@@ -21,6 +21,7 @@ public class Music {
     
     private final File file;
     private MediaPlayer media;
+    private Music next;
     private final SimpleStringProperty name;
     private final SimpleStringProperty format;
     private final SimpleStringProperty duration;
@@ -36,16 +37,10 @@ public class Music {
         String[] sp = uri.split("\\.");
         format = new SimpleStringProperty(sp[sp.length - 1]);
         sp[sp.length - 1] = "";
-        name = new SimpleStringProperty(String.join("", sp));
+        name = new SimpleStringProperty(String.join(".", sp));
         media = new MediaPlayer(new Media(path));
         duration = new SimpleStringProperty("");
-        media.setOnReady(() -> {
-            double dur;
-            dur = media.getMedia().getDuration().toSeconds();
-            int minutes = (int)(dur / 60);
-            int seconds = (int)(dur % 60);
-            Platform.runLater(() -> {duration.set("" + minutes + "m " + seconds + "s");});
-        });
+        
         
     }
     
@@ -59,6 +54,16 @@ public class Music {
         return media;
     }
     
+    public Music getNext()
+    {
+        return next;
+    }
+    
+    public void setNext(Music mus)
+    {
+        next = mus;
+    }
+            
     
     public String getName()
     {
@@ -73,5 +78,10 @@ public class Music {
     public String getDuration()
     {
         return duration.get();
+    }
+    
+    public void setDuration(String s)
+    {
+        duration.set(s);
     }
 }

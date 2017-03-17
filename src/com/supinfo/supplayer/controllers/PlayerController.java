@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -38,9 +39,9 @@ import javafx.stage.Stage;
  */
 public class PlayerController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
+    /////////////////////
+    //FXML constants/////
+    /////////////////////
     @FXML
     private MenuItem addMusicItem;
     
@@ -55,16 +56,24 @@ public class PlayerController implements Initializable {
     private TableColumn durationColumn;
     @FXML
     private TableColumn formatColumn;
+    @FXML
+    private Button playButton;
+    
+    ///////////////////
+    //Other attributes/
+    ///////////////////
     
     private File selectedFile;  
+    private boolean played;
+    private Music current;
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
         Stage primaryStage = SupPlayer.getStage();
-        addMusicItem.setOnAction((a) -> {
-                addMusic(a, primaryStage);
-        });
+        played = false;
+        musicTable.setItems(musicList);
+        
         titleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("name")
         );
@@ -74,7 +83,14 @@ public class PlayerController implements Initializable {
         formatColumn.setCellValueFactory(
                 new PropertyValueFactory<>("format")
         );
-        musicTable.setItems(musicList);
+        
+        addMusicItem.setOnAction((a) -> {
+                addMusic(a, primaryStage);
+        });
+        
+        playButton.setOnAction((a) -> {
+            playAndPause();
+        });
     }
      
     private void addMusic(ActionEvent a, Stage primaryStage)
@@ -93,20 +109,53 @@ public class PlayerController implements Initializable {
                 
                 String winPath = selectedFile.toURI().getRawPath();
                 String path = StringUtil.convertToFileURL(winPath);
-                musicList.add( 
-                        new Music(selectedFile)
-                );
-                MediaPlayer m = new MediaPlayer(new Media(path));
+                Music newMusic = new Music(selectedFile);
+                if (!musicList.isEmpty())
+                {
+                    musicList.get(musicList.size() - 1).setNext(newMusic);
+                } else 
+                {
+                    newMusic.getMedia().play();
+                    current = newMusic;
+
+                }
+                musicList.add(newMusic);
+                newMusic.getMedia().setOnReady(() -> {
+                    double dur;
+                    dur = newMusic.getMedia().getMedia().getDuration().toSeconds();
+                    int minutes = (int)(dur / 60);
+                    int seconds = (int)(dur % 60);
+                    Platform.runLater(() -> {newMusic.setDuration("" + minutes + "m " + seconds + "s");});
+                });
+                
+                newMusic.getMedia().setOnEndOfMedia(() -> {
+                    if (current.getNext() != null)
+                    {
+                       current.getMedia().stop();
+                       current = current.getNext();
+                       current.getMedia().play();
+                        System.out.println("End");
+                    }
+                });
+                System.out.println(current.getNext().getName());
                 musicTable.refresh();
-                musicList.get(0).getMedia().play();
+
 
             }
         } catch (Exception e)
         {
             e.printStackTrace();
         }
+        
+        
     }
     
-    
-
+    private void endMusic(Music music)
+    {
+        MediaPlayer media = music.getMedia();
+    }
+    private void playAndPause()
+    {
+        
+    }
 }
