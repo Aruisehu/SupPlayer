@@ -62,8 +62,7 @@ public class Music {
     public void setNext(Music mus)
     {
         next = mus;
-    }
-            
+    }       
     
     public String getName()
     {

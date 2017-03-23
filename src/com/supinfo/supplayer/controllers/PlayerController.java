@@ -9,17 +9,12 @@ import com.supinfo.supplayer.StringUtil;
 import com.supinfo.supplayer.SupPlayer;
 import com.supinfo.supplayer.models.Music;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -28,8 +23,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -72,7 +65,7 @@ public class PlayerController implements Initializable {
     ///////////////////
     
     private File selectedFile;  
-    private boolean played;
+    private boolean stopped; //If we reach the end of the playlist
     private Music current;
     private boolean running;
     private Duration duration;
@@ -81,10 +74,11 @@ public class PlayerController implements Initializable {
     public void initialize(URL url, ResourceBundle rb)
     {
         Stage primaryStage = SupPlayer.getStage();
-        played = false;
+        stopped = false;
         running = false;
         musicTable.setItems(musicList);
         
+        //Add event everywhere
         titleColumn.setCellValueFactory(
             new PropertyValueFactory<>("name")
         );
@@ -103,20 +97,30 @@ public class PlayerController implements Initializable {
             playAndPause();
         });
         
-        volumeSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-               if (volumeSlider.isValueChanging()) {
-                   current.getMedia().setVolume(volumeSlider.getValue() / 100.0);
-               }
+        musicTable.setOnMousePressed((ev) -> {
+            if(ev.isPrimaryButtonDown() && ev.getClickCount() > 1)
+            {
+                Music m = musicTable.getSelectionModel().getSelectedItem();
+                current.getMedia().stop();
+                current = m;
+                current.getMedia().play();
+                duration = current.getMedia().getMedia().getDuration();
+                update();
+
+                
             }
         });
+        
+        volumeSlider.valueProperty().addListener((ov) -> {
+           if (volumeSlider.isValueChanging()) {
+               current.getMedia().setVolume(volumeSlider.getValue() / 100.0);
+           }
+        });
                      
-        durationSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if (durationSlider.isValueChanging()) {
-                    // multiply duration by percentage calculated by slider position
-                    current.getMedia().seek(duration.multiply(durationSlider.getValue() / 100.0));
-                }
+        durationSlider.valueProperty().addListener((ov) -> {
+            if (durationSlider.isValueChanging()) {
+                // multiply duration by percentage calculated by slider position
+                current.getMedia().seek(duration.multiply(durationSlider.getValue() / 100.0));
             }
         });
                 
@@ -139,45 +143,45 @@ public class PlayerController implements Initializable {
                 String path = StringUtil.convertToFileURL(winPath);
                 Music newMusic = new Music(selectedFile);
                 
-                if (!musicList.isEmpty())
+                if (!musicList.isEmpty() && !stopped)
                 {
                     musicList.get(musicList.size() - 1).setNext(newMusic);
+                    newMusic.getMedia().setOnReady(() -> {
+                        onReady(newMusic);       
+                    });
                 }
                 else 
                 {
                     newMusic.getMedia().play();
                     playButton.setText("pause");
-                    //duration = current.getMedia().getMedia().getDuration();
                     running = true;
-                    current = newMusic;
+                    stopped = false;
+                    current = newMusic;newMusic.getMedia().setOnReady(() -> {
+                        onReady(newMusic);
+                        duration = newMusic.getMedia().getMedia().getDuration();
+                    });
                     
                     update();
                 }
                 
                 musicList.add(newMusic);
-                newMusic.getMedia().setOnReady(() -> {
-                    duration = newMusic.getMedia().getMedia().getDuration();
-                    double dur;
-                    dur = newMusic.getMedia().getMedia().getDuration().toSeconds();
-                    int minutes = (int)(dur / 60);
-                    int seconds = (int)(dur % 60);
-                    Platform.runLater(() -> {newMusic.setDuration("" + minutes + "m " + seconds + "s");});
-                    musicTable.refresh();
-                });
+                
                 
                 newMusic.getMedia().setOnEndOfMedia(() -> {
                     if (current.getNext() != null)
                     {
                         current.getMedia().stop();
                         current = current.getNext();
+                        duration = current.getMedia().getMedia().getDuration();
                         current.getMedia().play();
-                        System.out.println("End");
-                       
                         update();
+                    }
+                    else 
+                    {
+                        stopped = true;
                     }
                 });
 
-                System.out.println(current.getNext().getName());
                 musicTable.refresh();
             }
         }
@@ -189,11 +193,8 @@ public class PlayerController implements Initializable {
     
     private void update()
     {
-        current.getMedia().currentTimeProperty().addListener(new InvalidationListener() 
-        {
-            public void invalidated(Observable ov) {
-                updateValues();
-            }
+        current.getMedia().currentTimeProperty().addListener((ov) -> {
+            updateValues();
         });
     }
     
@@ -219,22 +220,33 @@ public class PlayerController implements Initializable {
     }
 
     protected void updateValues() {
-        if (durationSlider != null && volumeSlider != null) {
-           Platform.runLater(new Runnable() {
-              public void run() {
+        if (durationSlider != null && volumeSlider != null)
+        {
+            Platform.runLater(() -> {
                 Duration currentTime = current.getMedia().getCurrentTime();
                 if (!durationSlider.isDisabled() 
-                  && duration.greaterThan(Duration.ZERO) 
-                  && !durationSlider.isValueChanging()) {
+                        && duration.greaterThan(Duration.ZERO) 
+                        && !durationSlider.isValueChanging())
+                {
                     durationSlider.setValue(currentTime.divide(duration).toMillis()
                         * 100.0);
                 }
-                if (!volumeSlider.isValueChanging()) {
+                if (!volumeSlider.isValueChanging())
+                {
                   volumeSlider.setValue((int)Math.round(current.getMedia().getVolume() 
                         * 100));
                 }
-              }
            });
         }
+    }
+    
+    private void onReady(Music music)
+    {
+        double dur;
+        dur = music.getMedia().getMedia().getDuration().toSeconds();
+        int minutes = (int)(dur / 60);
+        int seconds = (int)(dur % 60);
+        Platform.runLater(() -> {music.setDuration("" + minutes + "m " + seconds + "s");});
+        musicTable.refresh();
     }
 }
